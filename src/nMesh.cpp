@@ -104,6 +104,9 @@ void nMesh::reMeshHelper(ofVec3f cPoint, ofMesh cMesh, vector<ofVec3f> cPoints, 
         cPoint.x = cPoint.x + ofRandom(-12.0, 12.0);
         cPoint.y = cPoint.y + ofRandom(-12.0, 12.0);
         
+//        ofVec3f temp = kinect.getWorldCoordinateAt(contourFinder.blobs[i].pts[0].x, contourFinder.blobs[i].pts[0].y);
+        
+        
         mesh.addVertex(cPoint);
         mesh.addColor(ofColor(255, 255, 255, 127));
         offsets.push_back(ofVec3f(ofRandom(0,100000), ofRandom(0,100000), ofRandom(0,100000)));
@@ -180,13 +183,13 @@ void nMesh::update() {
                 alphaFactor = ofMap(frameDiff, 0, 180, 1, 0);
             }
             
-            if (vert.x < (ofGetWindowWidth() / 2)) {
+            if (vert.x < cCenter.x) {
                 // Quadrant II
-                if (vert.y < (ofGetWindowHeight() / 2)) {
+                if (vert.y < cCenter.y) {
                     
                     // Get dimensions of right triangle from center of window
-                    float tempX = (ofGetWindowWidth() / 2) - vert.x;
-                    float tempY = (ofGetWindowHeight() / 2) - vert.y;
+                    float tempX = cCenter.x - vert.x;
+                    float tempY = cCenter.y - vert.y;
                     // Calculate the angle
                     float tempAngle = atan(tempY / tempX);
                     // Calculate the hypotenuse
@@ -208,15 +211,15 @@ void nMesh::update() {
                     // Quadrant III
                     
                     // Get dimensions of right triangle from center of window
-                    float tempX = (ofGetWindowWidth() / 2) - vert.x;
-                    float tempY = vert.y - (ofGetWindowHeight() / 2);
+                    float tempX = cCenter.x - vert.x;
+                    float tempY = vert.y - cCenter.y;
                     // Calculate the angle
                     float tempAngle = atan(tempY / tempX);
                     // Calculate the hypotenuse
                     float tempH = tempY / sin(tempAngle);
                     
                     // Calculate growthFactor
-                    growthFactor = growthCalcHelper(vert, ofVec3f(0, ofGetWindowHeight(), 0));
+                    growthFactor = growthCalcHelper(vert, ofVec3f(0, (cCenter.y * 2), 0));
                     
                     // Add to to the hypotenuse, and recalulate the new x/y points
                     tempH += growthFactor;
@@ -228,21 +231,20 @@ void nMesh::update() {
                     yGrowth = (newTempY - tempY);
                 }
                 
-                
             } else {
                 // Quadrant I
-                if (vert.y < (ofGetWindowHeight() / 2)) {
+                if (vert.y < cCenter.y) {
                     
                     // Get dimensions of right triangle from center of window
-                    float tempX = vert.x - (ofGetWindowWidth() / 2);
-                    float tempY = (ofGetWindowHeight() / 2) - vert.y;
+                    float tempX = vert.x - cCenter.x;
+                    float tempY = cCenter.y - vert.y;
                     // Calculate the angle
                     float tempAngle = atan(tempY / tempX);
                     // Calculate the hypotenuse
                     float tempH = tempY / sin(tempAngle);
                     
                     // Calculate growthFactor
-                    growthFactor = growthCalcHelper(vert, ofVec3f(ofGetWindowWidth(), 0, 0));
+                    growthFactor = growthCalcHelper(vert, ofVec3f((cCenter.x * 2), 0, 0));
                     
                     // Add to to the hypotenuse, and recalulate the new x/y points
                     tempH += growthFactor;
@@ -257,15 +259,15 @@ void nMesh::update() {
                     // Quadrant IV
                     
                     // Get dimensions of right triangle from center of window
-                    float tempX = vert.x - (ofGetWindowWidth() / 2);
-                    float tempY = vert.y - (ofGetWindowHeight() / 2);
+                    float tempX = vert.x - cCenter.x;
+                    float tempY = vert.y - cCenter.y;
                     // Calculate the angle
                     float tempAngle = atan(tempY / tempX);
                     // Calculate the hypotenuse
                     float tempH = tempY / sin(tempAngle);
                     
                     // Calculate growthFactor
-                    growthFactor = growthCalcHelper(vert, ofVec3f(ofGetWindowWidth(), ofGetWindowHeight(), 0));
+                    growthFactor = growthCalcHelper(vert, ofVec3f((cCenter.x * 2), (cCenter.y * 2), 0));
                     
                     // Add to to the hypotenuse, and recalulate the new x/y points
                     tempH += growthFactor;
@@ -289,11 +291,7 @@ void nMesh::update() {
         vert.y += (ofSignedNoise(time*timeScale+timeOffsets.y)) * displacementScale + yGrowth;
         vert.z += (ofSignedNoise(time*timeScale+timeOffsets.z)) * displacementScale;
         mesh.setVertex(i, vert);
-        
-//        vert.x += 1;
-//        mesh.setVertex(i, vert);
-        
-        
+
         float distance = vert.distance(cCenter);
         float alpha = ofMap(distance, 0, screenH, 255, 0);
         
@@ -318,7 +316,7 @@ void nMesh::update() {
 
 float nMesh::growthCalcHelper(ofVec3f vert, ofVec3f distantVert) {
     float tempDistance = vert.distance(distantVert);
-    float growth = ofMap(tempDistance, 0, screenH / 1, 0, 10);
+    float growth = ofMap(tempDistance, 0, screenH, 0, 10);
     
     return growth;
 }

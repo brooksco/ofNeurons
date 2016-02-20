@@ -16,6 +16,8 @@ bool five = false;
 bool bSoundToggle;
 bool bMusicToggle;
 
+bool showGui = true;
+
 // Canvas center vector
 ofVec3f cCenter;
 
@@ -27,16 +29,18 @@ float soundNoise;
 
 bool activeSensing = true;
 
+int drawCenter = 0;
+
 
 //--------------------------------------------------------------
 void ofApp::setup(){
     
-    cCenter = ofVec3f(ofGetWindowWidth() / 2, ofGetWindowHeight() / 2, 0.0);
-//    cCenter = ofVec3f(640 / 2, 480 / 2, 0.0);
+    //    cCenter = ofVec3f(ofGetWindowWidth() / 2, ofGetWindowHeight() / 2, 0.0);
+    cCenter = ofVec3f(640 / 2, 480 / 2, 0.0);
     
     // Set screen diagonal
-    screenH = sqrt(pow(ofGetWindowWidth(), 2) + (pow(ofGetWindowHeight(), 2)));
-//    screenH = sqrt(pow(640, 2) + (pow(480, 2)));
+    //    screenH = sqrt(pow(ofGetWindowWidth(), 2) + (pow(ofGetWindowHeight(), 2)));
+    screenH = sqrt(pow(640, 2) + (pow(480, 2)));
     // Kinect setup
     
     ofSetLogLevel(OF_LOG_VERBOSE);
@@ -44,7 +48,7 @@ void ofApp::setup(){
     // enable depth->video image calibration
     kinect.setRegistration(true);
     kinect.init();
-    //kinect.init(true); // shows infrared instead of RGB video image
+    //    kinect.init(true); // shows infrared instead of RGB video image
     //kinect.init(false, false); // disable video image (faster fps)
     kinect.open();
     
@@ -59,34 +63,62 @@ void ofApp::setup(){
     ofSetFrameRate(60);
     bKinectOpen = true ;
     
+    int guiWidth = 300;
+    float totalArea = kinect.width * kinect.height;
+    
+    
+    
+    
+    gui.setDefaultWidth(guiWidth);
     gui.setup();
     gui.setPosition(800, 20);
     
-    float totalArea = kinect.width * kinect.height;
+    // Depth group
+    depthGroup.setup("Kinect depth range");
+    depthGroup.add(nearDepthSlider.setup("near", 255, 0, 255));
+    depthGroup.add(farDepthSlider.setup("far", 215, 0, 255));
     
-    gui.add(nearDepthSlider.setup("depth near", 255, 0, 255));
-    gui.add(farDepthSlider.setup("depth far", 215, 0, 255));
-    gui.add(minBlobSlider.setup("min blob size", totalArea / 20, 0, totalArea));
-    gui.add(maxBlobSlider.setup("max blob size", totalArea / 2, 0, totalArea));
+    gui.add(&depthGroup);
+    depthGroup.setWidthElements(guiWidth);
     
-    gui.add(motorSlider.setup("motor angle", 12, -30.0, 30.0));
-    gui.add(calibrateViewToggle.setup("calibrate views", true));
+    // Blob group
+    blobGroup.setup("Blob size");
+    blobGroup.add(minBlobSlider.setup("min size", totalArea / 20, 0, totalArea));
+    blobGroup.add(maxBlobSlider.setup("max size", totalArea / 2, 0, totalArea));
     
-    //    gui.add(toggle.setup("threshold toggle", true));
-    //    gui.add(contourToggle.setup("contour finder toggle", true));
-    //    gui.add(pointsToggle.setup("points toggle", false));
+    gui.add(&blobGroup);
+    blobGroup.setWidthElements(guiWidth);
     
-    //    gui.add(minPointSlider.setup("min points z", 0, 0, 10000));
-    //    gui.add(maxPointSlider.setup("max points z", 2000, 0, 10000));
+    // Position group
+    posGroup.setup("Position");
+    posGroup.add(xPosSlider.setup("x", 0, -kinect.width / 2, kinect.width / 2));
+    posGroup.add(yPosSlider.setup("y", 0, -kinect.height / 2, kinect.height / 2));
+    posGroup.add(zPosSlider.setup("z", 0, -1000, 1000));
     
-    bSoundToggle = true;
+    gui.add(&posGroup);
+    posGroup.setWidthElements(guiWidth);
     
-    gui.add(soundToggle.setup("sound", true));
-    gui.add(musicToggle.setup("music", false));
+    // Center position group
+    centerPosGroup.setup("Center position");
+    centerPosGroup.add(xCenterPosSlider.setup("center x", kinect.width / 2, 0, kinect.width));
+    centerPosGroup.add(yCenterPosSlider.setup("center y", kinect.height / 2, 0, kinect.height));
     
+    gui.add(&centerPosGroup);
+    centerPosGroup.setWidthElements(guiWidth);
     
+    // Misc group
+    miscGroup.setup("Misc.");
+    miscGroup.add(motorSlider.setup("motor angle", 12, -30.0, 30.0));
+    miscGroup.add(calibrateViewToggle.setup("calibrate views", true));
+    miscGroup.add(easyCamToggle.setup("easyCam", false));
     
+    bSoundToggle = false;
     
+    miscGroup.add(soundToggle.setup("sound", bSoundToggle));
+    miscGroup.add(musicToggle.setup("music", false));
+    
+    gui.add(&miscGroup);
+    miscGroup.setWidthElements(guiWidth);
     
     
     // Music handling
@@ -118,7 +150,7 @@ void ofApp::setup(){
 void ofApp::update() {
     
     // Update from GUI control values
-//    bThreshWithOpenCV = toggle;
+    //    bThreshWithOpenCV = toggle;
     minBlobSize = minBlobSlider;
     maxBlobSize = maxBlobSlider;
     nearThreshold = nearDepthSlider;
@@ -127,26 +159,29 @@ void ofApp::update() {
     pointCloudMinZ = minPointSlider;
     pointCloudMaxZ = maxPointSlider;
     
+    cCenter.x = xCenterPosSlider;
+    cCenter.y = yCenterPosSlider;
+    
     kinect.setCameraTiltAngle(motorSlider);
     
     // Handle toggling sounds and music
     
-        if ((soundToggle == false) && (bSoundToggle == true)) {
-            bSoundToggle = false;
+    if ((soundToggle == false) && (bSoundToggle == true)) {
+        bSoundToggle = false;
+        
+    } else if ((soundToggle == true) && (bSoundToggle == false)) {
+        bSoundToggle = true;
+    }
     
-        } else if ((soundToggle == true) && (bSoundToggle == false)) {
-            bSoundToggle = true;
-        }
-    
-        if ((musicToggle == false) && (bMusicToggle == true)) {
-            bMusicToggle = false;
-            musicPlayer.stop();
-    
-        } else if ((musicToggle == true) && (bMusicToggle == false)) {
-            bMusicToggle = true;
-            musicPlayer.play();
-            musicPlayer.setPosition(ofRandom(0, 1.0));
-        }
+    if ((musicToggle == false) && (bMusicToggle == true)) {
+        bMusicToggle = false;
+        musicPlayer.stop();
+        
+    } else if ((musicToggle == true) && (bMusicToggle == false)) {
+        bMusicToggle = true;
+        musicPlayer.play();
+        musicPlayer.setPosition(ofRandom(0, 1.0));
+    }
     
     
     ofSetWindowTitle( "ofNeurons w/ Kinect - FPS:"+ ofToString( ofGetElapsedTimef() ) ) ;
@@ -161,12 +196,12 @@ void ofApp::update() {
         
         // we do two thresholds - one for the far plane and one for the near plane
         // we then do a cvAnd to get the pixels which are a union of the two thresholds
- 
-            grayThreshNear = grayImage;
-            grayThreshFar = grayImage;
-            grayThreshNear.threshold(nearThreshold, true);
-            grayThreshFar.threshold(farThreshold);
-            cvAnd(grayThreshNear.getCvImage(), grayThreshFar.getCvImage(), grayImage.getCvImage(), NULL);
+        
+        grayThreshNear = grayImage;
+        grayThreshFar = grayImage;
+        grayThreshNear.threshold(nearThreshold, true);
+        grayThreshFar.threshold(farThreshold);
+        cvAnd(grayThreshNear.getCvImage(), grayThreshFar.getCvImage(), grayImage.getCvImage(), NULL);
         
         
         // update the cv images
@@ -180,7 +215,7 @@ void ofApp::update() {
         // DEFINITELY going to need to alter this so it isn't such a mess to make so many new ones all at once
         
         // this can move further out later
-        if (nMeshes.size() < 20) {
+        if (nMeshes.size() < 40) {
             // Play around with this later...
             
             int newCount = ofRandom(1, 10);
@@ -196,8 +231,23 @@ void ofApp::update() {
                         type = 2;
                     }
                     
+                    // NEED TO store a vector since there may be multiple blobs, and have protype points be based on that vector
+                    
+                    // Copy current points to protype
+                    prototypePoints = contourFinder.blobs[i].pts;
+                    
+                    // This is awful but shit...let's see how bad it makes it
+                    for (int jj = 0; jj < prototypePoints.size(); jj++) {
+                        // Pull kinect z data at the spot
+                        ofVec3f kVec = kinect.getWorldCoordinateAt(prototypePoints[jj].x, prototypePoints[jj].y);
+                        // 500 is about 2 feet, 1000 is about 10 feet. Max is 2048, min is 0
+
+                        prototypePoints[jj].z = ofMap(kVec.z, 500, 1000, -400, 400);
+                    }
+                    
+
                     // Create a new nMesh, adding the points and setting the type
-                    nMesh newMesh = nMesh(contourFinder.blobs[i].pts, type);
+                    nMesh newMesh = nMesh(prototypePoints, type);
                     nMeshes.push_back(newMesh);
                     
                 }
@@ -206,7 +256,7 @@ void ofApp::update() {
         } else {
             // Might want to do a more gradual adding of meshes if it's over some threshold
         }
-
+        
         
     }
     
@@ -222,24 +272,26 @@ void ofApp::update() {
             //            cout << nMeshes.size() << endl;
         }
     }
-    //
-    //
-    //
-    //    if (nMeshes.size() < 40) {
-    //
-    //        int type = 3;
-    //
-    //        if (ofRandom(10) > 6) {
-    //            type = 1;
-    //
-    //        } else if (ofRandom(10) > 7) {
-    //            type = 2;
-    //        }
-    //
-    //
-    //        nMesh newMesh = nMesh(prototypePoints, type);
-    //        nMeshes.push_back(newMesh);
-    //    }
+    
+    // Check to make sure we have points
+    if (prototypePoints.size() > 0) {
+        if (nMeshes.size() < 20) {
+            
+            int type = 3;
+            
+            if (ofRandom(10) > 6) {
+                type = 1;
+                
+            } else if (ofRandom(10) > 7) {
+                type = 2;
+            }
+            
+            
+            nMesh newMesh = nMesh(prototypePoints, type);
+            nMeshes.push_back(newMesh);
+        }
+
+    }
     
     
     if (calibrateViewToggle == true) {
@@ -247,9 +299,8 @@ void ofApp::update() {
         cvCanny(grayImage.getCvImage(), edgeImage.getCvImage(), 0, 0);
         
         edgeImage.flagImageChanged();
-
+        
     }
-    
     
     soundNoise += .001;
     
@@ -258,42 +309,35 @@ void ofApp::update() {
     
     musicPlayer.setSpeed(ofMap(soundNoise, 0, 1, .1, 1.0));
     
+//    easyCam.setPosition(-ofGetWidth()/2, -ofGetHeight()/2, 0);
+//    easyCam.setTarget(ofVec3f(1, -1, 1));
+    
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
     ofBackground(0, 0, 0);
-    //    ofColor(0, 0, 0, 100);
+    ofEnableBlendMode(OF_BLENDMODE_ADD);
+    glPointSize(2);
     
     
+    ofPushMatrix();
     
-    //    for (int i = 0; i < nMeshes.size(); i++) {
-    //        nMeshes[i].mesh.setMode(OF_PRIMITIVE_LINE_LOOP);
-    //        nMeshes[i].mesh.draw();
-    //    }
+    if (easyCamToggle == true) {
+        easyCam.begin();
+        ofScale(1,-1,1);
+        ofTranslate(-ofGetWidth()/2, -ofGetHeight()/2);
+    }
+
+    // For now make the assumption that the projection is always landscape format
+    //    ofScale((float) ofGetWindowWidth() / 640, (float) ofGetWindowHeight() / 480);
+    float scaleRatio = ofGetWindowWidth() / 640;
+    ofScale(scaleRatio, scaleRatio);
     
-//    ofPushMatrix();
-//    ofScale((float) ofGetWindowWidth() / 640, (float) ofGetWindowHeight() / 480);
+    // Translate based on sliders and on initially centering the height
+    ofTranslate(xPosSlider, yPosSlider -(((kinect.height / 2) * scaleRatio) - (ofGetWindowHeight() / 2)) / 4, zPosSlider);
     
     for (int i = 0; i < nMeshes.size(); i++) {
-        //        if (one == true) {
-        //            nMeshes[i].mesh.setMode(OF_PRIMITIVE_POINTS);
-        //
-        //        } else if (two == true) {
-        //            nMeshes[i].mesh.setMode(OF_PRIMITIVE_LINE_LOOP);
-        //
-        //        } else if (three == true) {
-        //            nMeshes[i].mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
-        //
-        //        } else if (four == true) {
-        //            nMeshes[i].mesh.setMode(OF_PRIMITIVE_TRIANGLE_FAN);
-        //
-        //        } else if (five == true) {
-        //            nMeshes[i].mesh.setMode(OF_PRIMITIVE_LINES_ADJACENCY);
-        //
-        //        } else {
-        //            nMeshes[i].mesh.setMode(OF_PRIMITIVE_POINTS);
-        //        }
         
         if (nMeshes[i].type == 1) {
             nMeshes[i].mesh.setMode(OF_PRIMITIVE_LINE_LOOP);
@@ -308,10 +352,22 @@ void ofApp::draw(){
         nMeshes[i].mesh.draw();
     }
     
-//    ofPopMatrix();
-    
-    
     if (calibrateViewToggle == true) {
+        ofFill();
+        ofSetColor(255, 255, 255, 127);
+        ofDrawBox(cCenter.x - 5, cCenter.y - 5, 0, 10, 10, 10);
+    }
+    
+    if (easyCamToggle == true) {
+        easyCam.end();
+    }
+    
+    ofPopMatrix();
+    
+    
+    // If we're calibrating, draw the box at the center vector so we can move it easily
+    if (calibrateViewToggle == true) {
+        
         // draw from the live kinect
         kinect.drawDepth(10, 10, 400, 300);
         kinect.draw((ofGetWindowWidth() - 410), 10, 400, 300);
@@ -323,11 +379,18 @@ void ofApp::draw(){
     }
     
     
-    gui.draw();
+    if (showGui) {
+        gui.draw();
+    }
+    
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
+    
+    if (key == OF_KEY_RETURN) {
+        showGui = !showGui;
+    }
     
     if (key == '1') {
         one = !one;

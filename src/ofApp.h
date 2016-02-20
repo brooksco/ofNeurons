@@ -25,6 +25,8 @@ public:
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
     
+    ofEasyCam easyCam;
+    
     vector<ofVec3f> offsets;
     vector<ofVec3f> prototypePoints;
     vector<nMesh> nMeshes;
@@ -62,19 +64,38 @@ public:
     // GUI
     ofxPanel gui;
     
+    ofxGuiGroup depthGroup;
+    ofxGuiGroup blobGroup;
+    ofxGuiGroup posGroup;
+    ofxGuiGroup centerPosGroup;
+    ofxGuiGroup miscGroup;
+    
     ofxFloatSlider nearDepthSlider;
     ofxFloatSlider farDepthSlider;
+    
     ofxFloatSlider minBlobSlider;
     ofxFloatSlider maxBlobSlider;
     
-    ofxFloatSlider motorSlider;
+    ofxIntSlider xPosSlider;
+    ofxIntSlider yPosSlider;
+    ofxIntSlider zPosSlider;
+    
+    ofxIntSlider xCenterPosSlider;
+    ofxIntSlider yCenterPosSlider;
+    
+//    ofxToggle contourToggle;
+//    ofxToggle pointsToggle;
+//
     
     ofxToggle calibrateViewToggle;
-    ofxToggle contourToggle;
-    ofxToggle pointsToggle;
+    ofxFloatSlider motorSlider;
     
     ofxToggle soundToggle;
     ofxToggle musicToggle;
+    
+    ofxToggle easyCamToggle;
+    
+    
     
     ofxFloatSlider minPointSlider;
     ofxFloatSlider maxPointSlider;

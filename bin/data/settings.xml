@@ -4,6 +4,12 @@
 	<min_blob_size>15360</min_blob_size>
 	<max_blob_size>153600</max_blob_size>
 	<motor_angle>12</motor_angle>
-	<sound>1</sound>
-	<music>1</music>
+	<sound>0</sound>
+	<music>0</music>
+<group/>
+	<calibrate_views>1</calibrate_views>
+	<x>0</x>
+	<y>0</y>
+	<center_x>320</center_x>
+	<center_y>240</center_y>
 </group>
