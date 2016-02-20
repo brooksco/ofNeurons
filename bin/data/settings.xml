@@ -1,0 +1,9 @@
+<group>
+	<depth_near>255</depth_near>
+	<depth_far>215</depth_far>
+	<min_blob_size>15360</min_blob_size>
+	<max_blob_size>153600</max_blob_size>
+	<motor_angle>12</motor_angle>
+	<sound>1</sound>
+	<music>1</music>
+</group>

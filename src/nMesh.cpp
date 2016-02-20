@@ -12,6 +12,8 @@
 float initialAlpha = .1;
 ofSoundPlayer soundPlayer;
 ofSoundPlayer staticPlayer;
+
+//bool bSoundToggle;
 bool mute;
 
 nMesh::nMesh(ofMesh originalMesh) {
@@ -148,7 +150,7 @@ void nMesh::update() {
                 displacementScale = displacementScale * 1.25;
                 alphaFactor = 1;
                 
-                if (mute == false) {
+                if (bSoundToggle == true) {
                     
                     if (type == 1) {
                         soundPlayer.setSpeed(ofRandom(0.05, 1));
@@ -287,6 +289,9 @@ void nMesh::update() {
         vert.y += (ofSignedNoise(time*timeScale+timeOffsets.y)) * displacementScale + yGrowth;
         vert.z += (ofSignedNoise(time*timeScale+timeOffsets.z)) * displacementScale;
         mesh.setVertex(i, vert);
+        
+//        vert.x += 1;
+//        mesh.setVertex(i, vert);
         
         
         float distance = vert.distance(cCenter);
