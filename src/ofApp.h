@@ -32,6 +32,7 @@ public:
     
     vector<ofVec3f> offsets;
     vector<ofVec3f> prototypePoints;
+    vector<vector<ofVec3f>> vecPrototypePoints;
     vector<nMesh> nMeshes;
     
     ofMesh prototypeMesh;
@@ -83,12 +84,12 @@ public:
     ofxIntSlider yPosSlider;
     ofxIntSlider zPosSlider;
     
+    ofxIntSlider meshNumberSlider;
+    
     ofxIntSlider xCenterPosSlider;
     ofxIntSlider yCenterPosSlider;
-    
-//    ofxToggle contourToggle;
-//    ofxToggle pointsToggle;
-//
+
+    ofxToggle activeKinectToggle;
     
     ofxToggle calibrateViewToggle;
     ofxFloatSlider motorSlider;
@@ -97,7 +98,6 @@ public:
     ofxToggle musicToggle;
     
     ofxToggle easyCamToggle;
-    
     
     
     ofxFloatSlider minPointSlider;

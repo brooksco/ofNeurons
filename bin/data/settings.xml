@@ -17,23 +17,25 @@
 		<far>215</far>
 	</Kinect_depth_range>
 	<Blob_size>
-		<min_size>15360</min_size>
+		<min_size>4096</min_size>
 		<max_size>153600</max_size>
 	</Blob_size>
 	<Position>
-		<x>87</x>
-		<y>0</y>
-		<z>0</z>
+		<x>-12</x>
+		<y>-96</y>
+		<z>100</z>
 	</Position>
 	<Center_position>
-		<center_x>234</center_x>
-		<center_y>289</center_y>
+		<center_x>326</center_x>
+		<center_y>339</center_y>
 	</Center_position>
 	<Misc_>
 		<motor_angle>12</motor_angle>
 		<calibrate_views>1</calibrate_views>
 		<easyCam>0</easyCam>
-		<sound>0</sound>
-		<music>0</music>
+		<sound>1</sound>
+		<music>1</music>
+	<active_sensing>1</active_sensing>
+	<number_of_meshes>25</number_of_meshes>
 	</Misc_>
 </group>

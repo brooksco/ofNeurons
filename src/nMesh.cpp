@@ -38,14 +38,16 @@ nMesh::nMesh(ofMesh originalMesh) {
 // Not sure if I want a constructor, or the reMesh function
 nMesh::nMesh(vector<ofVec3f> prototypePoints, int type) {
     this->actionP = false;
-    this->alphaFactor = initialAlpha;
     this->type = type;
     
+    // Type 3 is dots
     if (type == 3) {
         this->displacementScale = ofRandom(.5, 1.5);
+        this->alphaFactor = .2;
         
     } else {
         this->displacementScale = ofRandom(1.5, 4.0);
+        this->alphaFactor = .1;
     }
     
     
@@ -53,7 +55,32 @@ nMesh::nMesh(vector<ofVec3f> prototypePoints, int type) {
     
     ofVec3f current = prototypePoints[0];
     
-    reMesh(current, mesh, prototypePoints, usedPoints);
+    
+    // No reMesh
+    for (int i = 0; i < prototypePoints.size(); i++) {
+        
+        ofVec3f current = prototypePoints[i];
+        
+        // This maybe should be played with
+        current.x = current.x + ofRandom(-12.0, 12.0);
+        current.y = current.y + ofRandom(-12.0, 12.0);
+        
+        mesh.addVertex(current);
+        
+        if (type == 3) {
+            mesh.addColor(ofColor(ofRandom(255), 255, 255, 127));
+        } else {
+            mesh.addColor(ofColor(255, 255, 255, 127));
+        }
+        
+        
+        offsets.push_back(ofVec3f(ofRandom(0,100000), ofRandom(0,100000), ofRandom(0,100000)));
+
+    }
+    
+    
+    
+//    reMesh(current, mesh, prototypePoints, usedPoints);
 }
 
 
@@ -63,7 +90,6 @@ void nMesh::reMesh(ofVec3f cPoint, ofMesh cMesh, vector<ofVec3f> cPoints, vector
     ofVec3f current = cPoints[0];
     
     reMeshHelper(current, mesh, cPoints, usedPoints);
-    
 }
 // End confusion
 
@@ -104,21 +130,9 @@ void nMesh::reMeshHelper(ofVec3f cPoint, ofMesh cMesh, vector<ofVec3f> cPoints, 
         cPoint.x = cPoint.x + ofRandom(-12.0, 12.0);
         cPoint.y = cPoint.y + ofRandom(-12.0, 12.0);
         
-//        ofVec3f temp = kinect.getWorldCoordinateAt(contourFinder.blobs[i].pts[0].x, contourFinder.blobs[i].pts[0].y);
-        
-        
         mesh.addVertex(cPoint);
         mesh.addColor(ofColor(255, 255, 255, 127));
         offsets.push_back(ofVec3f(ofRandom(0,100000), ofRandom(0,100000), ofRandom(0,100000)));
-        
-        // This is mad iffy
-        if (closestIndex != -1) {
-            //            mesh.addIndex(closestIndex);
-            
-            //            if (sClosestIndex != -1) {
-            //                mesh.addIndex(sClosestIndex);
-            //            }
-        }
         
         
         uPoints.push_back(closestIndex);
@@ -196,7 +210,8 @@ void nMesh::update() {
                     float tempH = tempY / sin(tempAngle);
                     
                     // Calculate growthFactor
-                    growthFactor = growthCalcHelper(vert, ofVec3f(0, 0, 0));
+                    growthFactor = ofMap(tempH, 0, screenH, 3, 0);
+//                    growthFactor = growthCalcHelper(vert, ofVec3f(0, 0, 0));
                     
                     // Add to to the hypotenuse, and recalulate the new x/y points
                     tempH += growthFactor;
@@ -219,7 +234,8 @@ void nMesh::update() {
                     float tempH = tempY / sin(tempAngle);
                     
                     // Calculate growthFactor
-                    growthFactor = growthCalcHelper(vert, ofVec3f(0, (cCenter.y * 2), 0));
+                    growthFactor = ofMap(tempH, 0, screenH, 3, 0);
+//                    growthFactor = growthCalcHelper(vert, ofVec3f(0, (cCenter.y * 2), 0));
                     
                     // Add to to the hypotenuse, and recalulate the new x/y points
                     tempH += growthFactor;
@@ -244,7 +260,8 @@ void nMesh::update() {
                     float tempH = tempY / sin(tempAngle);
                     
                     // Calculate growthFactor
-                    growthFactor = growthCalcHelper(vert, ofVec3f((cCenter.x * 2), 0, 0));
+                    growthFactor = ofMap(tempH, 0, screenH, 3, 0);
+//                    growthFactor = growthCalcHelper(vert, ofVec3f((cCenter.x * 2), 0, 0));
                     
                     // Add to to the hypotenuse, and recalulate the new x/y points
                     tempH += growthFactor;
@@ -267,7 +284,8 @@ void nMesh::update() {
                     float tempH = tempY / sin(tempAngle);
                     
                     // Calculate growthFactor
-                    growthFactor = growthCalcHelper(vert, ofVec3f((cCenter.x * 2), (cCenter.y * 2), 0));
+                    growthFactor = ofMap(tempH, 0, screenH, 3, 0);
+//                    growthFactor = growthCalcHelper(vert, ofVec3f((cCenter.x * 2), (cCenter.y * 2), 0));
                     
                     // Add to to the hypotenuse, and recalulate the new x/y points
                     tempH += growthFactor;
@@ -293,10 +311,12 @@ void nMesh::update() {
         mesh.setVertex(i, vert);
 
         float distance = vert.distance(cCenter);
-        float alpha = ofMap(distance, 0, screenH, 255, 0);
+        float alpha = ofMap(distance, 0, screenH, 200, 0);
         
         if (type == 3) {
-            mesh.setColor(i, ofColor(0, 255, 255, (alpha * alphaFactor) / 2));
+            // Maintain old color but set new alpha value
+            ofColor old = mesh.getColor(i);
+            mesh.setColor(i, ofColor(old.r, old.g, old.b, (alpha * alphaFactor) / 2));
             
         } else {
             mesh.setColor(i, ofColor(0, 255, 255, (alpha * alphaFactor)));

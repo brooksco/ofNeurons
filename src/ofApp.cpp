@@ -39,7 +39,7 @@ void ofApp::setup(){
     cCenter = ofVec3f(640 / 2, 480 / 2, 0.0);
     
     // Set screen diagonal
-    //    screenH = sqrt(pow(ofGetWindowWidth(), 2) + (pow(ofGetWindowHeight(), 2)));
+//        screenH = sqrt(pow(ofGetWindowWidth(), 2) + (pow(ofGetWindowHeight(), 2)));
     screenH = sqrt(pow(640, 2) + (pow(480, 2)));
     // Kinect setup
     
@@ -71,7 +71,7 @@ void ofApp::setup(){
     
     gui.setDefaultWidth(guiWidth);
     gui.setup();
-    gui.setPosition(800, 20);
+    gui.setPosition(900, 20);
     
     // Depth group
     depthGroup.setup("Kinect depth range");
@@ -110,7 +110,9 @@ void ofApp::setup(){
     miscGroup.setup("Misc.");
     miscGroup.add(motorSlider.setup("motor angle", 12, -30.0, 30.0));
     miscGroup.add(calibrateViewToggle.setup("calibrate views", true));
+    miscGroup.add(activeKinectToggle.setup("active sensing", true));
     miscGroup.add(easyCamToggle.setup("easyCam", false));
+    miscGroup.add(meshNumberSlider.setup("number of meshes", 20, 0, 60));
     
     bSoundToggle = false;
     
@@ -190,41 +192,94 @@ void ofApp::update() {
     ofSetWindowTitle( "ofNeurons w/ Kinect - FPS:"+ ofToString( ofGetElapsedTimef() ) ) ;
     kinect.update();
     
-    
-    // there is a new frame and we are connected
-    if (kinect.isFrameNew()) {
+    // If kinect sensing is supposed to be active
+    if (activeKinectToggle == true) {
         
-        // load grayscale depth image from the kinect source
-        grayImage.setFromPixels(kinect.getDepthPixels());
-        
-        // we do two thresholds - one for the far plane and one for the near plane
-        // we then do a cvAnd to get the pixels which are a union of the two thresholds
-        
-        grayThreshNear = grayImage;
-        grayThreshFar = grayImage;
-        grayThreshNear.threshold(nearThreshold, true);
-        grayThreshFar.threshold(farThreshold);
-        cvAnd(grayThreshNear.getCvImage(), grayThreshFar.getCvImage(), grayImage.getCvImage(), NULL);
-        
-        
-        // update the cv images
-        grayImage.flagImageChanged();
-        
-        
-        // Find contours
-        contourFinder.findContours(grayImage, minBlobSize , maxBlobSize , 20, false);
-        
-        
-        // DEFINITELY going to need to alter this so it isn't such a mess to make so many new ones all at once
-        
-        // this can move further out later
-        if (nMeshes.size() < 40) {
-            // Play around with this later...
+        // There is a new frame, we're connected
+        if (kinect.isFrameNew()) {
             
-            int newCount = ofRandom(1, 10);
-            for (int j = nMeshes.size(); j < newCount; j++) {
+            // load grayscale depth image from the kinect source
+            grayImage.setFromPixels(kinect.getDepthPixels());
+            
+            // we do two thresholds - one for the far plane and one for the near plane
+            // we then do a cvAnd to get the pixels which are a union of the two thresholds
+            
+            grayThreshNear = grayImage;
+            grayThreshFar = grayImage;
+            grayThreshNear.threshold(nearThreshold, true);
+            grayThreshFar.threshold(farThreshold);
+            cvAnd(grayThreshNear.getCvImage(), grayThreshFar.getCvImage(), grayImage.getCvImage(), NULL);
+            
+            // update the cv images
+            grayImage.flagImageChanged();
+            
+            // Find contours
+            contourFinder.findContours(grayImage, minBlobSize , maxBlobSize , 20, false);
+            
+            
+            if (nMeshes.size() < meshNumberSlider) {
+                // Probably ought to be played around with
+                int oldCount = nMeshes.size();
+                int newCount = ofRandom(1, 5);
                 
-                for (int i = 0; i < contourFinder.blobs.size(); i++) {
+                for (int j = oldCount; j < (newCount + oldCount); j++) {
+                    
+                    // Mmmm maybe there's a better way to clear this, maybe not
+                    vecPrototypePoints.clear();
+                    
+                    for (int i = 0; i < contourFinder.blobs.size(); i++) {
+                        int type = 3;
+                        
+                        if (ofRandom(10) > 6) {
+                            type = 1;
+                            
+                        } else if (ofRandom(10) > 7) {
+                            type = 2;
+                        }
+                        
+                        // Copy current points to protype
+                        prototypePoints = contourFinder.blobs[i].pts;
+                        // Push protype back onto vector
+                        vecPrototypePoints.push_back(contourFinder.blobs[i].pts);
+                        
+                        // This is awful but shit...let's see how bad it makes it
+                        for (int jj = 0; jj < prototypePoints.size(); jj++) {
+                            // Pull kinect z data at the spot
+                            ofVec3f kVec = kinect.getWorldCoordinateAt(prototypePoints[jj].x, prototypePoints[jj].y);
+                            // 500 is about 2 feet, 1000 is about 10 feet. Max is 2048, min is 0
+                            
+                            prototypePoints[jj].z = ofMap(kVec.z, 500, 1000, -400, 400);
+                        }
+                        
+                        
+                        // Create a new nMesh, adding the points and setting the type
+                        nMesh newMesh = nMesh(prototypePoints, type);
+                        nMeshes.push_back(newMesh);
+                        
+                    }
+                }
+                
+            } else {
+                // Might want to do a more gradual adding of meshes if it's over some threshold
+            }
+            
+        }
+        
+    } else {
+        // The kinect is not actively sensing, so build from prototype if available only
+        
+        // Check to make sure we have points
+        if (prototypePoints.size() > 0) {
+            
+            // If we have less meshes than some amount, add them the easy way
+            if (nMeshes.size() < meshNumberSlider) {
+                
+                int oldCount = nMeshes.size();
+                int newCount = ofRandom(1, 5);
+                
+                for (int j = oldCount; j < (newCount + oldCount); j++) {
+                    
+                    
                     int type = 3;
                     
                     if (ofRandom(10) > 6) {
@@ -234,86 +289,43 @@ void ofApp::update() {
                         type = 2;
                     }
                     
-                    // NEED TO store a vector since there may be multiple blobs, and have protype points be based on that vector
-                    
-                    // Copy current points to protype
-                    prototypePoints = contourFinder.blobs[i].pts;
-                    
-                    // This is awful but shit...let's see how bad it makes it
-                    for (int jj = 0; jj < prototypePoints.size(); jj++) {
-                        // Pull kinect z data at the spot
-                        ofVec3f kVec = kinect.getWorldCoordinateAt(prototypePoints[jj].x, prototypePoints[jj].y);
-                        // 500 is about 2 feet, 1000 is about 10 feet. Max is 2048, min is 0
-
-                        prototypePoints[jj].z = ofMap(kVec.z, 500, 1000, -400, 400);
+                    for (int i = 0; i < vecPrototypePoints.size(); i++) {
+                        nMesh newMesh = nMesh(vecPrototypePoints[i], type);
+                        nMeshes.push_back(newMesh);
                     }
-                    
-
-                    // Create a new nMesh, adding the points and setting the type
-                    nMesh newMesh = nMesh(prototypePoints, type);
-                    nMeshes.push_back(newMesh);
-                    
                 }
+                
             }
             
-        } else {
-            // Might want to do a more gradual adding of meshes if it's over some threshold
         }
-        
         
     }
     
-    
+    // Update the meshes
     for (int i = 0; i < nMeshes.size(); i++) {
-        
         nMeshes[i].update();
         
+        // If the alphaFactor has hit zero, we're done with the mesh...delete it
         if (nMeshes[i].alphaFactor == 0) {
             nMeshes.erase(nMeshes.begin() + i);
-            //            delete * nMeshes[i];
-            
-            //            cout << nMeshes.size() << endl;
         }
     }
     
-    // Check to make sure we have points
-    if (prototypePoints.size() > 0) {
-        if (nMeshes.size() < 20) {
-            
-            int type = 3;
-            
-            if (ofRandom(10) > 6) {
-                type = 1;
-                
-            } else if (ofRandom(10) > 7) {
-                type = 2;
-            }
-            
-            
-            nMesh newMesh = nMesh(prototypePoints, type);
-            nMeshes.push_back(newMesh);
-        }
-
-    }
-    
-    
+    // If we're in calibration view...
     if (calibrateViewToggle == true) {
         // Run canny edge detection and stuff it in the edge image
         cvCanny(grayImage.getCvImage(), edgeImage.getCvImage(), 0, 0);
         
         edgeImage.flagImageChanged();
-        
     }
     
+    
+    // Update music playback
     soundNoise += .001;
-    
     float soundNoise = ofNoise(soundNoise);
+    
     musicPlayer.setVolume(ofNoise(soundNoise) * .5);
-    
     musicPlayer.setSpeed(ofMap(soundNoise, 0, 1, .1, 1.0));
-    
-//    easyCam.setPosition(-ofGetWidth()/2, -ofGetHeight()/2, 0);
-//    easyCam.setTarget(ofVec3f(1, -1, 1));
     
 }
 
@@ -331,7 +343,7 @@ void ofApp::draw(){
         ofScale(1,-1,1);
         ofTranslate(-ofGetWidth()/2, -ofGetHeight()/2);
     }
-
+    
     // For now make the assumption that the projection is always landscape format
     //    ofScale((float) ofGetWindowWidth() / 640, (float) ofGetWindowHeight() / 480);
     float scaleRatio = ofGetWindowWidth() / 640;
@@ -468,34 +480,6 @@ void ofApp::keyPressed(int key){
         }
         
         cout << nMeshes.size() << endl;
-    }
-    
-    if (key == OF_KEY_RIGHT) {
-        for (int i = 0; i < prototypePoints.size(); i++) {
-            prototypePoints[i].x = (prototypePoints[i].x + 1);
-        }
-        
-    }
-    
-    if (key == OF_KEY_LEFT) {
-        for (int i = 0; i < prototypePoints.size(); i++) {
-            prototypePoints[i].x = (prototypePoints[i].x - 1);
-        }
-        
-    }
-    
-    if (key == OF_KEY_UP) {
-        for (int i = 0; i < prototypePoints.size(); i++) {
-            prototypePoints[i].y = (prototypePoints[i].y - 1);
-        }
-        
-    }
-    
-    if (key == OF_KEY_DOWN) {
-        for (int i = 0; i < prototypePoints.size(); i++) {
-            prototypePoints[i].y = (prototypePoints[i].y + 1);
-        }
-        
     }
     
 }
