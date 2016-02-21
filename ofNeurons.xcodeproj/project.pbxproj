@@ -35,6 +35,10 @@
 		0A955D1E1C7829A100B72104 /* ofxCvImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A955C451C7829A100B72104 /* ofxCvImage.cpp */; };
 		0A955D1F1C7829A100B72104 /* ofxCvShortImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0A955C471C7829A100B72104 /* ofxCvShortImage.cpp */; };
 		0A955D201C7829A100B72104 /* opencv.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A955D161C7829A100B72104 /* opencv.a */; };
+		0AD2A7241C793E5C0001FB91 /* ofxXmlSettings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AD2A71D1C793E5C0001FB91 /* ofxXmlSettings.cpp */; };
+		0AD2A7251C793E5C0001FB91 /* tinyxml.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AD2A7201C793E5C0001FB91 /* tinyxml.cpp */; };
+		0AD2A7261C793E5C0001FB91 /* tinyxmlerror.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AD2A7221C793E5C0001FB91 /* tinyxmlerror.cpp */; };
+		0AD2A7271C793E5C0001FB91 /* tinyxmlparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AD2A7231C793E5C0001FB91 /* tinyxmlparser.cpp */; };
 		0AF047DC1C6BCE0D00FD19C4 /* nMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0AF047DA1C6BCE0D00FD19C4 /* nMesh.cpp */; };
 		E4328149138ABC9F0047C5CB /* openFrameworksDebug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4328148138ABC890047C5CB /* openFrameworksDebug.a */; };
 		E4B69E200A3A1BDC003C02F2 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E4B69E1D0A3A1BDC003C02F2 /* main.cpp */; };
@@ -295,6 +299,12 @@
 		0A955D021C7829A100B72104 /* videostab.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = videostab.hpp; sourceTree = "<group>"; };
 		0A955D161C7829A100B72104 /* opencv.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = opencv.a; sourceTree = "<group>"; };
 		0A955D181C7829A100B72104 /* LICENSE */ = {isa = PBXFileReference; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
+		0AD2A71D1C793E5C0001FB91 /* ofxXmlSettings.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = ofxXmlSettings.cpp; sourceTree = "<group>"; };
+		0AD2A71E1C793E5C0001FB91 /* ofxXmlSettings.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ofxXmlSettings.h; sourceTree = "<group>"; };
+		0AD2A7201C793E5C0001FB91 /* tinyxml.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = tinyxml.cpp; sourceTree = "<group>"; };
+		0AD2A7211C793E5C0001FB91 /* tinyxml.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = tinyxml.h; sourceTree = "<group>"; };
+		0AD2A7221C793E5C0001FB91 /* tinyxmlerror.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = tinyxmlerror.cpp; sourceTree = "<group>"; };
+		0AD2A7231C793E5C0001FB91 /* tinyxmlparser.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = tinyxmlparser.cpp; sourceTree = "<group>"; };
 		0AF047DA1C6BCE0D00FD19C4 /* nMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nMesh.cpp; sourceTree = "<group>"; };
 		0AF047DB1C6BCE0D00FD19C4 /* nMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = nMesh.h; sourceTree = "<group>"; };
 		E4328143138ABC890047C5CB /* openFrameworksLib.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = openFrameworksLib.xcodeproj; path = ../../../libs/openFrameworksCompiled/project/osx/openFrameworksLib.xcodeproj; sourceTree = SOURCE_ROOT; };
@@ -907,6 +917,37 @@
 			path = license;
 			sourceTree = "<group>";
 		};
+		0AD2A71B1C793E5C0001FB91 /* ofxXmlSettings */ = {
+			isa = PBXGroup;
+			children = (
+				0AD2A71C1C793E5C0001FB91 /* src */,
+				0AD2A71F1C793E5C0001FB91 /* libs */,
+			);
+			name = ofxXmlSettings;
+			sourceTree = "<group>";
+		};
+		0AD2A71C1C793E5C0001FB91 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				0AD2A71D1C793E5C0001FB91 /* ofxXmlSettings.cpp */,
+				0AD2A71E1C793E5C0001FB91 /* ofxXmlSettings.h */,
+			);
+			name = src;
+			path = ../../../addons/ofxXmlSettings/src;
+			sourceTree = "<group>";
+		};
+		0AD2A71F1C793E5C0001FB91 /* libs */ = {
+			isa = PBXGroup;
+			children = (
+				0AD2A7201C793E5C0001FB91 /* tinyxml.cpp */,
+				0AD2A7211C793E5C0001FB91 /* tinyxml.h */,
+				0AD2A7221C793E5C0001FB91 /* tinyxmlerror.cpp */,
+				0AD2A7231C793E5C0001FB91 /* tinyxmlparser.cpp */,
+			);
+			name = libs;
+			path = ../../../addons/ofxXmlSettings/libs;
+			sourceTree = "<group>";
+		};
 		6948EE371B920CB800B5AC1A /* local_addons */ = {
 			isa = PBXGroup;
 			children = (
@@ -920,6 +961,7 @@
 				0A955B9C1C78299500B72104 /* ofxGui */,
 				0A955BB71C78299A00B72104 /* ofxKinect */,
 				0A955C371C7829A100B72104 /* ofxOpenCv */,
+				0AD2A71B1C793E5C0001FB91 /* ofxXmlSettings */,
 			);
 			name = addons;
 			sourceTree = "<group>";
@@ -1053,6 +1095,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0AD2A7261C793E5C0001FB91 /* tinyxmlerror.cpp in Sources */,
+				0AD2A7271C793E5C0001FB91 /* tinyxmlparser.cpp in Sources */,
 				0A955C311C78299A00B72104 /* keep_alive.c in Sources */,
 				0A955C2F1C78299A00B72104 /* core.c in Sources */,
 				0A955C351C78299A00B72104 /* usb_libusb10.c in Sources */,
@@ -1063,6 +1107,7 @@
 				0A955C331C78299A00B72104 /* registration.c in Sources */,
 				0A955C321C78299A00B72104 /* loader.c in Sources */,
 				0A955C2B1C78299A00B72104 /* ofxKinectExtras.cpp in Sources */,
+				0AD2A7251C793E5C0001FB91 /* tinyxml.cpp in Sources */,
 				0A955BAF1C78299500B72104 /* ofxBaseGui.cpp in Sources */,
 				0A955C341C78299A00B72104 /* tilt.c in Sources */,
 				0A955D1E1C7829A100B72104 /* ofxCvImage.cpp in Sources */,
@@ -1071,6 +1116,7 @@
 				0A955C2E1C78299A00B72104 /* cameras.c in Sources */,
 				0A955BB11C78299500B72104 /* ofxGuiGroup.cpp in Sources */,
 				0A955BB31C78299500B72104 /* ofxPanel.cpp in Sources */,
+				0AD2A7241C793E5C0001FB91 /* ofxXmlSettings.cpp in Sources */,
 				0A955C301C78299A00B72104 /* flags.c in Sources */,
 				E4B69E200A3A1BDC003C02F2 /* main.cpp in Sources */,
 				0A955D1C1C7829A100B72104 /* ofxCvGrayscaleImage.cpp in Sources */,

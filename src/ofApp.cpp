@@ -120,6 +120,9 @@ void ofApp::setup(){
     gui.add(&miscGroup);
     miscGroup.setWidthElements(guiWidth);
     
+    // Load previous settings
+    gui.loadFromFile("settings.xml");
+    
     
     // Music handling
     
@@ -383,6 +386,10 @@ void ofApp::draw(){
         gui.draw();
     }
     
+}
+
+void ofApp::exit() {
+    gui.saveToFile("settings.xml");
 }
 
 //--------------------------------------------------------------

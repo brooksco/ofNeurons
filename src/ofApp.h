@@ -5,6 +5,7 @@
 #include "ofxOpenCv.h"
 #include "ofxKinect.h"
 #include "ofxGUI.h"
+#include "ofxXmlSettings.h"
 
 class ofApp : public ofBaseApp{
     
@@ -24,6 +25,8 @@ public:
     void windowResized(int w, int h);
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
+    
+    void exit();
     
     ofEasyCam easyCam;
     
@@ -100,7 +103,8 @@ public:
     ofxFloatSlider minPointSlider;
     ofxFloatSlider maxPointSlider;
     
-    
+    // XML Settings
+    ofxXmlSettings settings;
 };
 
 
