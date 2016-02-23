@@ -21,20 +21,20 @@
 		<max_size>153600</max_size>
 	</Blob_size>
 	<Position>
-		<x>74</x>
+		<x>110</x>
 		<y>-99</y>
-		<z>400</z>
+		<z>-533</z>
 	</Position>
 	<Center_position>
-		<center_x>283</center_x>
-		<center_y>339</center_y>
+		<center_x>200</center_x>
+		<center_y>384</center_y>
 	</Center_position>
 	<Misc_>
 		<motor_angle>12</motor_angle>
 		<calibrate_views>1</calibrate_views>
 		<easyCam>0</easyCam>
-		<sound>1</sound>
-		<music>1</music>
+		<sound>0</sound>
+		<music>0</music>
 	<active_sensing>1</active_sensing>
 	<number_of_meshes>33</number_of_meshes>
 	</Misc_>

@@ -45,6 +45,21 @@ void ofApp::setup(){
     
     ofSetLogLevel(OF_LOG_VERBOSE);
     
+    // Setup post processing
+    post.init(ofGetWidth(), ofGetHeight());
+    post.setFlip(true);
+//    post.createPass<FxaaPass>();
+//    post.createPass<BloomPass>();
+    post.createPass<DofPass>();
+//    post.createPass<DofPass>()->setEnabled(false);
+//    post.createPass<KaleidoscopePass>()->setEnabled(false);
+//    post.createPass<NoiseWarpPass>()->setEnabled(false);
+//    post.createPass<PixelatePass>()->setEnabled(false);
+//    post.createPass<EdgePass>()->setEnabled(false);
+//    post.createPass<VerticalTiltShifPass>()->setEnabled(false);
+//    post.createPass<GodRaysPass>()->setEnabled(false);
+    
+    
     // enable depth->video image calibration
     kinect.setRegistration(true);
     kinect.init();
@@ -331,18 +346,33 @@ void ofApp::update() {
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+//    post.setFlip(true);
+//    post.begin();
+
+    // Only do post processing if we're not using easyCam because they really don't seem to get along
+    if (easyCamToggle == false) {
+        post.begin();
+    }
+
+    
+//    post.draw(0,ofGetHeight(),ofGetWidth(),0-ofGetHeight());
     ofBackground(0, 0, 0);
     ofEnableBlendMode(OF_BLENDMODE_ADD);
     glPointSize(2);
+    
     
     
     ofPushMatrix();
     
     if (easyCamToggle == true) {
         easyCam.begin();
+//        post.setFlip(true);
         ofScale(1,-1,1);
         ofTranslate(-ofGetWidth()/2, -ofGetHeight()/2);
+        
     }
+    
+    ofBackground(0, 0, 0);
     
     // For now make the assumption that the projection is always landscape format
     //    ofScale((float) ofGetWindowWidth() / 640, (float) ofGetWindowHeight() / 480);
@@ -351,6 +381,9 @@ void ofApp::draw(){
     
     // Translate based on sliders and on initially centering the height
     ofTranslate(xPosSlider, yPosSlider -(((kinect.height / 2) * scaleRatio) - (ofGetWindowHeight() / 2)) / 4, zPosSlider);
+    
+//    post.setFlip(true);
+//    post.begin();
     
     for (int i = 0; i < nMeshes.size(); i++) {
         
@@ -367,18 +400,29 @@ void ofApp::draw(){
         nMeshes[i].mesh.draw();
     }
     
+//    post.end();
+    
     if (calibrateViewToggle == true) {
         ofFill();
         ofSetColor(255, 255, 255, 127);
         ofDrawBox(cCenter.x - 5, cCenter.y - 5, 0, 10, 10, 10);
     }
     
+    
     if (easyCamToggle == true) {
         easyCam.end();
+        
+    } else {
+//        post.end();
     }
+    
+    
     
     ofPopMatrix();
     
+    if (easyCamToggle == false) {
+        post.end();
+    }
     
     // If we're calibrating, draw the box at the center vector so we can move it easily
     if (calibrateViewToggle == true) {
@@ -392,6 +436,8 @@ void ofApp::draw(){
         
         edgeImage.draw((ofGetWindowWidth() - 410), (ofGetWindowHeight() - 310), 400, 300);
     }
+    
+//    post.end();
     
     
     if (showGui) {

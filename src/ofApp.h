@@ -6,6 +6,7 @@
 #include "ofxKinect.h"
 #include "ofxGUI.h"
 #include "ofxXmlSettings.h"
+#include "ofxPostProcessing.h"
 
 class ofApp : public ofBaseApp{
     
@@ -105,6 +106,9 @@ public:
     
     // XML Settings
     ofxXmlSettings settings;
+    
+    // Post processing
+    ofxPostProcessing post;
 };
 
 
