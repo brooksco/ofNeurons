@@ -28,6 +28,7 @@ public:
     vector<ofVec3f> points;
     vector<ofVec3f> offsets;
     bool actionP;
+    bool actionPComplete;
     int actionPStart;
     
     float alphaFactor;
@@ -43,5 +44,6 @@ private:
     float growthCalcHelper(ofVec3f vert, ofVec3f distantVert);
     
 };
+
 
 #endif /* nMesh_h */

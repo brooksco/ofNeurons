@@ -21,12 +21,12 @@
 		<max_size>153600</max_size>
 	</Blob_size>
 	<Position>
-		<x>-12</x>
-		<y>-96</y>
-		<z>100</z>
+		<x>74</x>
+		<y>-99</y>
+		<z>400</z>
 	</Position>
 	<Center_position>
-		<center_x>326</center_x>
+		<center_x>283</center_x>
 		<center_y>339</center_y>
 	</Center_position>
 	<Misc_>
@@ -36,6 +36,6 @@
 		<sound>1</sound>
 		<music>1</music>
 	<active_sensing>1</active_sensing>
-	<number_of_meshes>25</number_of_meshes>
+	<number_of_meshes>33</number_of_meshes>
 	</Misc_>
 </group>

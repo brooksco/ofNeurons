@@ -20,6 +20,7 @@ nMesh::nMesh(ofMesh originalMesh) {
     // Copy the prototype mesh, might want to muss it up a bit after this
     this->mesh = originalMesh;
     this->actionP = false;
+    this->actionPComplete = false;
     this->alphaFactor = initialAlpha;
     
     this->mesh.setMode(OF_PRIMITIVE_POINTS);
@@ -38,16 +39,20 @@ nMesh::nMesh(ofMesh originalMesh) {
 // Not sure if I want a constructor, or the reMesh function
 nMesh::nMesh(vector<ofVec3f> prototypePoints, int type) {
     this->actionP = false;
+    this->actionPComplete = false;
     this->type = type;
     
     // Type 3 is dots
     if (type == 3) {
         this->displacementScale = ofRandom(.5, 1.5);
-        this->alphaFactor = .2;
+//        this->alphaFactor = ofRandom(.1, 1); //.2;
+        this->alphaFactor = ofRandom(50, 150); //.2;
         
     } else {
+        // Non dot
         this->displacementScale = ofRandom(1.5, 4.0);
-        this->alphaFactor = .1;
+        this->alphaFactor = ofRandom(10, 15);
+//        this->alphaFactor = ofRandom(.1, 1); //.1;
     }
     
     
@@ -68,9 +73,10 @@ nMesh::nMesh(vector<ofVec3f> prototypePoints, int type) {
         mesh.addVertex(current);
         
         if (type == 3) {
-            mesh.addColor(ofColor(ofRandom(255), 255, 255, 127));
+            mesh.addColor(ofColor(ofRandom(155), ofRandom(255), 255, ofRandom(100, 200)));
+            
         } else {
-            mesh.addColor(ofColor(255, 255, 255, 127));
+            mesh.addColor(ofColor(ofRandom(200,255), ofRandom(200,255), ofRandom(200,255), 127));
         }
         
         
@@ -145,7 +151,8 @@ void nMesh::reMeshHelper(ofVec3f cPoint, ofMesh cMesh, vector<ofVec3f> cPoints, 
 void nMesh::update() {
     
     int numVerts = mesh.getNumVertices();
-    for (int i = 0; i < numVerts; ++i) {
+//    for (int i = 0; i < numVerts; ++i) {
+    for (int i = 0; i < numVerts; i++) {
         ofVec3f vert = mesh.getVertex(i);
         
         float time = ofGetElapsedTimef();
@@ -162,11 +169,19 @@ void nMesh::update() {
         if ((ofRandom(100000) >= 99999) || (actionP == true)) {
             
             if (actionP == false) {
+                // First time through, actionP is starting
                 actionPStart = ofGetFrameNum();
                 actionP = true;
                 displacementScale = displacementScale * 1.25;
-                alphaFactor = 1;
                 
+//                // Using the r value as storage for a value
+//                // Safe to go through all of them since it won't get back here
+//                for (int j = 0; j < numVerts; j++) {
+//                    ofColor old = mesh.getColor(j);
+//                    mesh.setColor(j, ofColor(old.r, old.g, old.b, old.r));
+//                }
+                
+                // Handle sounds
                 if (bSoundToggle == true) {
                     
                     if (type == 1) {
@@ -185,16 +200,16 @@ void nMesh::update() {
 //                        staticPlayer.play();
                     }
                 }
-            }
+            } // End actionP == false
             
             int frameDiff = ofGetFrameNum() - actionPStart;
             
             if (type == 3) {
-                alphaFactor = ofMap(frameDiff, 0, 960, 1, 0);
-                
+                alphaFactor = ofMap(frameDiff, 0, 480, 200, 0); // used to be 1 instead of 255
+
             } else {
                 // 180 frames, 60fps, so ~3 sec
-                alphaFactor = ofMap(frameDiff, 0, 180, 1, 0);
+                alphaFactor = ofMap(frameDiff, 0, 180, 60, 0); // used to be 1 instead of 255
             }
             
             if (vert.x < cCenter.x) {
@@ -297,7 +312,10 @@ void nMesh::update() {
                     yGrowth = (newTempY - tempY);
                 }
             }
-        }
+            
+            
+            
+        }// End actionP
         
         if (type == 3) {
             xGrowth = xGrowth / 4;
@@ -311,24 +329,45 @@ void nMesh::update() {
         mesh.setVertex(i, vert);
 
         float distance = vert.distance(cCenter);
-        float alpha = ofMap(distance, 0, screenH, 200, 0);
         
+        float alpha = 1;
+        
+        // If its the dot type
         if (type == 3) {
-            // Maintain old color but set new alpha value
+//            alpha = ofMap(distance, 0, screenH / 2, 255, 0);
+            alpha = 255;
+//            // Maintain old color but set new alpha value
             ofColor old = mesh.getColor(i);
-            mesh.setColor(i, ofColor(old.r, old.g, old.b, (alpha * alphaFactor) / 2));
+            mesh.setColor(i, ofColor(old.r, old.g, old.b, (alphaFactor) / 2));
             
         } else {
-            mesh.setColor(i, ofColor(0, 255, 255, (alpha * alphaFactor)));
+            ofColor old = mesh.getColor(i);
+//            alpha = ofMap(distance, 0, screenH / 2, 200, 0);
+//            
+//            if (alpha < 0) {
+//                alpha = 0;
+//            }
+//            mesh.setColor(i, ofColor(0, 255, 255, (alpha * alphaFactor)));
+//            mesh.setColor(i, ofColor(0, 255, 255, alpha));
+            mesh.setColor(i, ofColor(0, 255, old.b, alphaFactor));
+
             
             if (ofRandom(10) > 9) {
-                mesh.setColor(i, ofColor(255, 0, 255, 60));
+                mesh.setColor(i, ofColor(255, 0, old.b, 60));
                 
             } else if (ofRandom(10) > 8) {
-                mesh.setColor(i, ofColor(255, 0, 255, 0));
+                mesh.setColor(i, ofColor(255, 0, old.b, 0));
             }
             
         }
+        
+        if (alphaFactor == 0) {
+            actionPComplete = true;
+        }
+        
+//        if (distance == screenH / 4) {
+//            actionPComplete = true;
+//        }
         
     }
     

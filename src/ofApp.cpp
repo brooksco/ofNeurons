@@ -305,8 +305,8 @@ void ofApp::update() {
     for (int i = 0; i < nMeshes.size(); i++) {
         nMeshes[i].update();
         
-        // If the alphaFactor has hit zero, we're done with the mesh...delete it
-        if (nMeshes[i].alphaFactor == 0) {
+        // If the actionP is completed...delete it
+        if (nMeshes[i].actionPComplete == true) {
             nMeshes.erase(nMeshes.begin() + i);
         }
     }
