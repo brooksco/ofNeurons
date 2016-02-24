@@ -16,27 +16,7 @@ ofSoundPlayer staticPlayer;
 //bool bSoundToggle;
 bool mute;
 
-nMesh::nMesh(ofMesh originalMesh) {
-    // Copy the prototype mesh, might want to muss it up a bit after this
-    this->mesh = originalMesh;
-    this->actionP = false;
-    this->actionPComplete = false;
-    this->alphaFactor = initialAlpha;
-    
-    this->mesh.setMode(OF_PRIMITIVE_POINTS);
-    //    this->mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
-    
-    // Setup offsets? points?
-    int numVerts = mesh.getNumVertices();
-    for (int i = 0; i < numVerts; ++i) {
-        ofVec3f vert = mesh.getVertex(i);
-        points.push_back(vert);
-        offsets.push_back(ofVec3f(ofRandom(0,100000), ofRandom(0,100000), ofRandom(0,100000)));
-    }
-    
-}
-
-// Not sure if I want a constructor, or the reMesh function
+// Constructor
 nMesh::nMesh(vector<ofVec3f> prototypePoints, int type) {
     this->actionP = false;
     this->actionPComplete = false;
@@ -84,69 +64,8 @@ nMesh::nMesh(vector<ofVec3f> prototypePoints, int type) {
 
     }
     
-    
-    
-//    reMesh(current, mesh, prototypePoints, usedPoints);
 }
 
-
-void nMesh::reMesh(ofVec3f cPoint, ofMesh cMesh, vector<ofVec3f> cPoints, vector<int> uPoints) {
-    vector<int> usedPoints;
-    
-    ofVec3f current = cPoints[0];
-    
-    reMeshHelper(current, mesh, cPoints, usedPoints);
-}
-// End confusion
-
-
-void nMesh::reMeshHelper(ofVec3f cPoint, ofMesh cMesh, vector<ofVec3f> cPoints, vector<int> uPoints) {
-    if (uPoints.size() < cPoints.size() - 1) {
-        
-        ofVec3f closest = ofVec3f(10000, 10000, 10000);
-        ofVec3f sClosest = ofVec3f(10000, 10000, 10000);
-        int closestIndex = -1;
-        int sClosestIndex = -1;
-        
-        // Find closest
-        for (int j = 0; j < cPoints.size(); j++) {
-            
-            if ( !(std::find(uPoints.begin(), uPoints.end(), j) != uPoints.end()) ) {
-                
-                if (cPoint.distance(cPoints[j]) < cPoint.distance(closest)) {
-                    
-                    if ((sClosestIndex == -1) && (closestIndex != -1)) {
-                        sClosest = closest;
-                        sClosestIndex = closestIndex;
-                    }
-                    
-                    closest = cPoints[j];
-                    closestIndex = j;
-                    
-                    
-                } else if (cPoint.distance(cPoints[j]) < cPoint.distance(sClosest)) {
-                    sClosest = cPoints[j];
-                    sClosestIndex = j;
-                }
-                
-            }
-        } // end for j
-        
-        // This maybe should be played with
-        cPoint.x = cPoint.x + ofRandom(-12.0, 12.0);
-        cPoint.y = cPoint.y + ofRandom(-12.0, 12.0);
-        
-        mesh.addVertex(cPoint);
-        mesh.addColor(ofColor(255, 255, 255, 127));
-        offsets.push_back(ofVec3f(ofRandom(0,100000), ofRandom(0,100000), ofRandom(0,100000)));
-        
-        
-        uPoints.push_back(closestIndex);
-        reMeshHelper(closest, mesh, cPoints, uPoints);
-        
-    }
-    
-}
 
 void nMesh::update() {
     
@@ -378,4 +297,65 @@ float nMesh::growthCalcHelper(ofVec3f vert, ofVec3f distantVert) {
     float growth = ofMap(tempDistance, 0, screenH, 0, 10);
     
     return growth;
+}
+
+
+
+
+void nMesh::reMesh(ofVec3f cPoint, ofMesh cMesh, vector<ofVec3f> cPoints, vector<int> uPoints) {
+    vector<int> usedPoints;
+    
+    ofVec3f current = cPoints[0];
+    
+    reMeshHelper(current, mesh, cPoints, usedPoints);
+}
+// End confusion
+
+
+void nMesh::reMeshHelper(ofVec3f cPoint, ofMesh cMesh, vector<ofVec3f> cPoints, vector<int> uPoints) {
+    if (uPoints.size() < cPoints.size() - 1) {
+        
+        ofVec3f closest = ofVec3f(10000, 10000, 10000);
+        ofVec3f sClosest = ofVec3f(10000, 10000, 10000);
+        int closestIndex = -1;
+        int sClosestIndex = -1;
+        
+        // Find closest
+        for (int j = 0; j < cPoints.size(); j++) {
+            
+            if ( !(std::find(uPoints.begin(), uPoints.end(), j) != uPoints.end()) ) {
+                
+                if (cPoint.distance(cPoints[j]) < cPoint.distance(closest)) {
+                    
+                    if ((sClosestIndex == -1) && (closestIndex != -1)) {
+                        sClosest = closest;
+                        sClosestIndex = closestIndex;
+                    }
+                    
+                    closest = cPoints[j];
+                    closestIndex = j;
+                    
+                    
+                } else if (cPoint.distance(cPoints[j]) < cPoint.distance(sClosest)) {
+                    sClosest = cPoints[j];
+                    sClosestIndex = j;
+                }
+                
+            }
+        } // end for j
+        
+        // This maybe should be played with
+        cPoint.x = cPoint.x + ofRandom(-12.0, 12.0);
+        cPoint.y = cPoint.y + ofRandom(-12.0, 12.0);
+        
+        mesh.addVertex(cPoint);
+        mesh.addColor(ofColor(255, 255, 255, 127));
+        offsets.push_back(ofVec3f(ofRandom(0,100000), ofRandom(0,100000), ofRandom(0,100000)));
+        
+        
+        uPoints.push_back(closestIndex);
+        reMeshHelper(closest, mesh, cPoints, uPoints);
+        
+    }
+    
 }

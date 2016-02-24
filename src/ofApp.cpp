@@ -39,26 +39,11 @@ void ofApp::setup(){
     cCenter = ofVec3f(640 / 2, 480 / 2, 0.0);
     
     // Set screen diagonal
-//        screenH = sqrt(pow(ofGetWindowWidth(), 2) + (pow(ofGetWindowHeight(), 2)));
+    //        screenH = sqrt(pow(ofGetWindowWidth(), 2) + (pow(ofGetWindowHeight(), 2)));
     screenH = sqrt(pow(640, 2) + (pow(480, 2)));
     // Kinect setup
     
     ofSetLogLevel(OF_LOG_VERBOSE);
-    
-    // Setup post processing
-    post.init(ofGetWidth(), ofGetHeight());
-    post.setFlip(true);
-//    post.createPass<FxaaPass>();
-//    post.createPass<BloomPass>();
-    post.createPass<DofPass>();
-//    post.createPass<DofPass>()->setEnabled(false);
-//    post.createPass<KaleidoscopePass>()->setEnabled(false);
-//    post.createPass<NoiseWarpPass>()->setEnabled(false);
-//    post.createPass<PixelatePass>()->setEnabled(false);
-//    post.createPass<EdgePass>()->setEnabled(false);
-//    post.createPass<VerticalTiltShifPass>()->setEnabled(false);
-//    post.createPass<GodRaysPass>()->setEnabled(false);
-    
     
     // enable depth->video image calibration
     kinect.setRegistration(true);
@@ -77,6 +62,7 @@ void ofApp::setup(){
     
     ofSetFrameRate(60);
     bKinectOpen = true ;
+    
     
     int guiWidth = 300;
     float totalArea = kinect.width * kinect.height;
@@ -121,12 +107,26 @@ void ofApp::setup(){
     gui.add(&centerPosGroup);
     centerPosGroup.setWidthElements(guiWidth);
     
+    
+//    // Blur group
+//    // setup(int width, int height, int radius = 32, float shape = .2, int passes = 1, float downsample = .5);
+//    blurGroup.setup("Blur");
+//    blurGroup.add(blurRadiusSlider.setup("blur radius", 40, 1, 80));
+//    blurGroup.add(blurShapeSlider.setup("blur shape", .2, .1, 10));
+//    blurGroup.add(blurPassesSlider.setup("blur passes", 1, 1, 10));
+//    blurGroup.add(blurDownsampleSlider.setup("blur downsample", .5, .1, 1));
+//    blurGroup.add(blurRefreshButton.setup("blur refresh"));
+//    
+//    gui.add(&blurGroup);
+//    blurGroup.setWidthElements(guiWidth);
+    
     // Misc group
     miscGroup.setup("Misc.");
     miscGroup.add(motorSlider.setup("motor angle", 12, -30.0, 30.0));
     miscGroup.add(calibrateViewToggle.setup("calibrate views", true));
     miscGroup.add(activeKinectToggle.setup("active sensing", true));
     miscGroup.add(easyCamToggle.setup("easyCam", false));
+    miscGroup.add(blurToggle.setup("bloom", false));
     miscGroup.add(meshNumberSlider.setup("number of meshes", 20, 0, 60));
     
     bSoundToggle = false;
@@ -140,6 +140,11 @@ void ofApp::setup(){
     // Load previous settings
     gui.loadFromFile("settings.xml");
     
+    
+    // Blur setup
+    // setup(int width, int height, int radius = 32, float shape = .2, int passes = 1, float downsample = .5);
+//    blur.setup(ofGetWindowWidth(), ofGetWindowHeight(), blurRadiusSlider, blurShapeSlider, blurPassesSlider, blurDownsampleSlider);
+    blur.setup(ofGetWindowWidth(), ofGetWindowHeight(), 50, .2, 1, .1);
     
     // Music handling
     
@@ -346,33 +351,24 @@ void ofApp::update() {
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-//    post.setFlip(true);
-//    post.begin();
-
-    // Only do post processing if we're not using easyCam because they really don't seem to get along
-    if (easyCamToggle == false) {
-        post.begin();
-    }
-
-    
-//    post.draw(0,ofGetHeight(),ofGetWidth(),0-ofGetHeight());
     ofBackground(0, 0, 0);
-    ofEnableBlendMode(OF_BLENDMODE_ADD);
     glPointSize(2);
     
-    
+    if (blurToggle == true) {
+//        if (blurRefreshButton == true) {
+//            blur.setup(ofGetWindowWidth(), ofGetWindowHeight(), blurRadiusSlider, blurShapeSlider, blurPassesSlider, blurDownsampleSlider);
+//        }
+        
+        blur.begin();
+    }
     
     ofPushMatrix();
     
     if (easyCamToggle == true) {
         easyCam.begin();
-//        post.setFlip(true);
-        ofScale(1,-1,1);
-        ofTranslate(-ofGetWidth()/2, -ofGetHeight()/2);
-        
+        ofScale(1, -1, 1);
+        ofTranslate(-ofGetWidth() / 2, -ofGetHeight() / 2);
     }
-    
-    ofBackground(0, 0, 0);
     
     // For now make the assumption that the projection is always landscape format
     //    ofScale((float) ofGetWindowWidth() / 640, (float) ofGetWindowHeight() / 480);
@@ -382,8 +378,9 @@ void ofApp::draw(){
     // Translate based on sliders and on initially centering the height
     ofTranslate(xPosSlider, yPosSlider -(((kinect.height / 2) * scaleRatio) - (ofGetWindowHeight() / 2)) / 4, zPosSlider);
     
-//    post.setFlip(true);
-//    post.begin();
+    
+    ofBackground(0, 0, 0);
+    ofEnableBlendMode(OF_BLENDMODE_ADD);
     
     for (int i = 0; i < nMeshes.size(); i++) {
         
@@ -399,8 +396,9 @@ void ofApp::draw(){
         
         nMeshes[i].mesh.draw();
     }
-    
-//    post.end();
+
+    ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+
     
     if (calibrateViewToggle == true) {
         ofFill();
@@ -408,26 +406,68 @@ void ofApp::draw(){
         ofDrawBox(cCenter.x - 5, cCenter.y - 5, 0, 10, 10, 10);
     }
     
-    
     if (easyCamToggle == true) {
         easyCam.end();
-        
-    } else {
-//        post.end();
     }
-    
-    
     
     ofPopMatrix();
     
-    if (easyCamToggle == false) {
-        post.end();
+    if (blurToggle == true) {
+        blur.end();
+        blur.draw();
     }
+    
+    
+    
+    // If we're blurring, do it ALL OVER AGAIN to draw non-blurred stuff
+    if (blurToggle == true) {
+        
+        ofPushMatrix();
+        
+        if (easyCamToggle == true) {
+            easyCam.begin();
+            ofScale(1, -1, 1);
+            ofTranslate(-ofGetWidth()/2, -ofGetHeight()/2);
+        }
+        
+        // For now make the assumption that the projection is always landscape format
+        //    ofScale((float) ofGetWindowWidth() / 640, (float) ofGetWindowHeight() / 480);
+        scaleRatio = ofGetWindowWidth() / 640;
+        ofScale(scaleRatio, scaleRatio);
+        
+        // Translate based on sliders and on initially centering the height
+        ofTranslate(xPosSlider, yPosSlider -(((kinect.height / 2) * scaleRatio) - (ofGetWindowHeight() / 2)) / 4, zPosSlider);
+        
+        ofEnableBlendMode(OF_BLENDMODE_ADD);
+        for (int i = 0; i < nMeshes.size(); i++) {
+            
+            if (nMeshes[i].type == 1) {
+                nMeshes[i].mesh.setMode(OF_PRIMITIVE_LINE_LOOP);
+                
+            } else if (nMeshes[i].type == 2) {
+                nMeshes[i].mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+                
+            } else if (nMeshes[i].type == 3) {
+                nMeshes[i].mesh.setMode(OF_PRIMITIVE_POINTS);
+            }
+            
+            nMeshes[i].mesh.draw();
+        }
+        ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+        
+        if (easyCamToggle == true) {
+            easyCam.end();
+        }
+        
+        ofPopMatrix();
+        
+    } // End ALL OVER AGAIN
+    
+    
     
     // If we're calibrating, draw the box at the center vector so we can move it easily
     if (calibrateViewToggle == true) {
-        
-        // draw from the live kinect
+        // Draw from the live kinect
         kinect.drawDepth(10, 10, 400, 300);
         kinect.draw((ofGetWindowWidth() - 410), 10, 400, 300);
         
@@ -437,13 +477,11 @@ void ofApp::draw(){
         edgeImage.draw((ofGetWindowWidth() - 410), (ofGetWindowHeight() - 310), 400, 300);
     }
     
-//    post.end();
-    
-    
+    // Show the GUI if we want it
     if (showGui) {
         gui.draw();
     }
-    
+
 }
 
 void ofApp::exit() {
@@ -567,7 +605,9 @@ void ofApp::mouseExited(int x, int y){
 
 //--------------------------------------------------------------
 void ofApp::windowResized(int w, int h){
-    
+    blur.setup(ofGetWindowWidth(), ofGetWindowHeight(), 50, .2, 1, .1);
+//    blur.setup(ofGetWindowWidth(), ofGetWindowHeight(), blurRadiusSlider, blurShapeSlider, blurPassesSlider, blurDownsampleSlider);
+
 }
 
 //--------------------------------------------------------------

@@ -6,7 +6,7 @@
 #include "ofxKinect.h"
 #include "ofxGUI.h"
 #include "ofxXmlSettings.h"
-#include "ofxPostProcessing.h"
+#include "ofxBlur.h"
 
 class ofApp : public ofBaseApp{
     
@@ -69,17 +69,26 @@ public:
     // GUI
     ofxPanel gui;
     
+    // GUI groups
     ofxGuiGroup depthGroup;
     ofxGuiGroup blobGroup;
     ofxGuiGroup posGroup;
     ofxGuiGroup centerPosGroup;
+    ofxGuiGroup blurGroup;
     ofxGuiGroup miscGroup;
     
+    
+    // GUI sliders
     ofxFloatSlider nearDepthSlider;
     ofxFloatSlider farDepthSlider;
     
     ofxFloatSlider minBlobSlider;
     ofxFloatSlider maxBlobSlider;
+    
+    ofxFloatSlider motorSlider;
+    
+    ofxFloatSlider minPointSlider;
+    ofxFloatSlider maxPointSlider;
     
     ofxIntSlider xPosSlider;
     ofxIntSlider yPosSlider;
@@ -89,26 +98,33 @@ public:
     
     ofxIntSlider xCenterPosSlider;
     ofxIntSlider yCenterPosSlider;
-
-    ofxToggle activeKinectToggle;
     
+    // setup(int width, int height, int radius = 32, float shape = .2, int passes = 1, float downsample = .5);
+    ofxIntSlider blurRadiusSlider;
+    ofxFloatSlider blurShapeSlider;
+    ofxIntSlider blurPassesSlider;
+    ofxFloatSlider blurDownsampleSlider;
+    
+
+    // GUI toggles
+    ofxToggle activeKinectToggle;
     ofxToggle calibrateViewToggle;
-    ofxFloatSlider motorSlider;
     
     ofxToggle soundToggle;
     ofxToggle musicToggle;
     
     ofxToggle easyCamToggle;
+    ofxToggle blurToggle;
     
+    // GUI buttons;
+    ofxButton blurRefreshButton;
     
-    ofxFloatSlider minPointSlider;
-    ofxFloatSlider maxPointSlider;
-    
-    // XML Settings
+    // XML settings
     ofxXmlSettings settings;
     
-    // Post processing
-    ofxPostProcessing post;
+    // Blur
+    ofxBlur blur;
+
 };
 
 
