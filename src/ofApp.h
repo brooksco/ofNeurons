@@ -27,6 +27,8 @@ public:
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
     
+    void drawPointCloud();
+    
     void exit();
     
     ofEasyCam easyCam;
@@ -38,6 +40,8 @@ public:
     
     ofMesh prototypeMesh;
     ofImage image;
+    
+    ofMesh modelMesh;
     
     // Kinect
     ofxKinect kinect;
@@ -115,6 +119,8 @@ public:
     
     ofxToggle easyCamToggle;
     ofxToggle blurToggle;
+    
+    ofxToggle pointCloudToggle;
     
     // GUI buttons;
     ofxButton blurRefreshButton;

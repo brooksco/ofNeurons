@@ -127,6 +127,7 @@ void ofApp::setup(){
     miscGroup.add(activeKinectToggle.setup("active sensing", true));
     miscGroup.add(easyCamToggle.setup("easyCam", false));
     miscGroup.add(blurToggle.setup("bloom", false));
+    miscGroup.add(pointCloudToggle.setup("pointCloud", false));
     miscGroup.add(meshNumberSlider.setup("number of meshes", 20, 0, 60));
     
     bSoundToggle = false;
@@ -218,7 +219,7 @@ void ofApp::update() {
         // There is a new frame, we're connected
         if (kinect.isFrameNew()) {
             
-            // load grayscale depth image from the kinect source
+            // Load grayscale depth image from the kinect
             grayImage.setFromPixels(kinect.getDepthPixels());
             
             // we do two thresholds - one for the far plane and one for the near plane
@@ -235,6 +236,40 @@ void ofApp::update() {
             
             // Find contours
             contourFinder.findContours(grayImage, minBlobSize , maxBlobSize , 20, false);
+            
+            // Lets try to dump the sculpture data into it's own mesh
+            ofPixels pixels = grayImage.getPixels();
+            modelMesh.clear();
+            modelMesh.setMode(OF_PRIMITIVE_POINTS);
+            int step = 2;
+            for (int y = 0; y < 480; y += step) {
+                for (int x = 0; x < 640; x += step) {
+                    //            if (kinect.getDistanceAt(x, y) > 0) {
+                    // Check if the pixel is at least a certain brightness
+                    
+                    int value = pixels[y * 640 + x];
+                    
+                    if ((int)pixels[y * 640 + x] > 10) {
+                        
+                        ofVec3f vertex = kinect.getWorldCoordinateAt(x, y);
+                        vertex.z = ofMap(vertex.z, 200, 1000, 400, -100);
+//                        vertex.z = 100;
+                        vertex.x = x;
+                        vertex.y = y;
+//                        ofVec3f vertex = ofVec3f(x, y, 0);
+                        
+                        modelMesh.addVertex(vertex);
+                        
+                        //Offset the color here
+                        ofColor col = kinect.getColorAt(x, y);
+                        col = ofColor(col.r, col.g, col.b, 128);
+//                                            ofColor col = ofColor(255, 255, 255); // + offset ;
+                        
+                        modelMesh.addColor( col );
+                        
+                    }
+                }
+            }
             
             
             if (nMeshes.size() < meshNumberSlider) {
@@ -268,7 +303,9 @@ void ofApp::update() {
                             ofVec3f kVec = kinect.getWorldCoordinateAt(prototypePoints[jj].x, prototypePoints[jj].y);
                             // 500 is about 2 feet, 1000 is about 10 feet. Max is 2048, min is 0
                             
-                            prototypePoints[jj].z = ofMap(kVec.z, 500, 1000, -400, 400);
+                            float deep = kVec.z;
+                            
+                            prototypePoints[jj].z = ofMap(kVec.z, 500, 2000, 0, 400);
                         }
                         
                         
@@ -369,7 +406,7 @@ void ofApp::draw(){
         ofScale(1, -1, 1);
         ofTranslate(-ofGetWidth() / 2, -ofGetHeight() / 2);
     }
-    
+
     // For now make the assumption that the projection is always landscape format
     //    ofScale((float) ofGetWindowWidth() / 640, (float) ofGetWindowHeight() / 480);
     float scaleRatio = ofGetWindowWidth() / 640;
@@ -382,6 +419,7 @@ void ofApp::draw(){
     ofBackground(0, 0, 0);
     ofEnableBlendMode(OF_BLENDMODE_ADD);
     
+    // Go through all the meshes, set the mesh display modes, and draw them
     for (int i = 0; i < nMeshes.size(); i++) {
         
         if (nMeshes[i].type == 1) {
@@ -398,8 +436,14 @@ void ofApp::draw(){
     }
 
     ofEnableBlendMode(OF_BLENDMODE_ALPHA);
-
     
+    // Draw the model back as a point cloud
+    if (pointCloudToggle == true) {
+        modelMesh.draw();
+    }
+    
+    
+    // If we're calibrating, draw the box at the center vector so we can move it easily
     if (calibrateViewToggle == true) {
         ofFill();
         ofSetColor(255, 255, 255, 127);
@@ -453,7 +497,13 @@ void ofApp::draw(){
             
             nMeshes[i].mesh.draw();
         }
+        
         ofEnableBlendMode(OF_BLENDMODE_ALPHA);
+        
+        // Draw the model back as a point cloud
+        if (pointCloudToggle == true) {
+            modelMesh.draw();
+        }
         
         if (easyCamToggle == true) {
             easyCam.end();
@@ -465,7 +515,8 @@ void ofApp::draw(){
     
     
     
-    // If we're calibrating, draw the box at the center vector so we can move it easily
+    
+    // If we're calibrating, draw the different displays
     if (calibrateViewToggle == true) {
         // Draw from the live kinect
         kinect.drawDepth(10, 10, 400, 300);
@@ -483,6 +534,7 @@ void ofApp::draw(){
     }
 
 }
+
 
 void ofApp::exit() {
     gui.saveToFile("settings.xml");
