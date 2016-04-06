@@ -78,6 +78,7 @@ public:
     ofxGuiGroup blobGroup;
     ofxGuiGroup posGroup;
     ofxGuiGroup centerPosGroup;
+    ofxGuiGroup cloudPosGroup;
     ofxGuiGroup blurGroup;
     ofxGuiGroup miscGroup;
     
@@ -94,20 +95,25 @@ public:
     ofxFloatSlider minPointSlider;
     ofxFloatSlider maxPointSlider;
     
+    // Position sliders
     ofxIntSlider xPosSlider;
     ofxIntSlider yPosSlider;
     ofxIntSlider zPosSlider;
     
-    ofxIntSlider meshNumberSlider;
-    
     ofxIntSlider xCenterPosSlider;
     ofxIntSlider yCenterPosSlider;
+    
+    ofxIntSlider xCloudPosSlider;
+    ofxIntSlider yCloudPosSlider;
+    ofxIntSlider zCloudPosSlider;
     
     // setup(int width, int height, int radius = 32, float shape = .2, int passes = 1, float downsample = .5);
     ofxIntSlider blurRadiusSlider;
     ofxFloatSlider blurShapeSlider;
     ofxIntSlider blurPassesSlider;
     ofxFloatSlider blurDownsampleSlider;
+    
+    ofxIntSlider meshNumberSlider;
     
 
     // GUI toggles

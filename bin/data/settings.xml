@@ -13,33 +13,33 @@
 	<center_x>320</center_x>
 	<center_y>240</center_y>
 <Kinect_depth_range>
-		<near>255</near>
-		<far>169.15</far>
+		<near>165.75</near>
+		<far>128.35</far>
 	</Kinect_depth_range>
 	<Blob_size>
-		<min_size>0</min_size>
-		<max_size>190464</max_size>
+		<min_size>4096</min_size>
+		<max_size>40704</max_size>
 	</Blob_size>
 	<Position>
-		<x>-46</x>
-		<y>-97</y>
-		<z>-133</z>
+		<x>74</x>
+		<y>48</y>
+		<z>-710</z>
 	</Position>
 	<Center_position>
-		<center_x>324</center_x>
-		<center_y>353</center_y>
+		<center_x>258</center_x>
+		<center_y>222</center_y>
 	</Center_position>
 	<Misc_>
-		<motor_angle>10.8</motor_angle>
-		<calibrate_views>0</calibrate_views>
-		<easyCam>0</easyCam>
+		<motor_angle>2.2</motor_angle>
+		<calibrate_views>1</calibrate_views>
+		<easyCam>1</easyCam>
 		<sound>0</sound>
 		<music>0</music>
 	<active_sensing>1</active_sensing>
-	<number_of_meshes>28</number_of_meshes>
+	<number_of_meshes>25</number_of_meshes>
 	<blur>1</blur>
 	<bloom>1</bloom>
-	<pointCloud>0</pointCloud>
+	<pointCloud>1</pointCloud>
 	</Misc_>
 <Blur>
 		<blur_downsample>0.769</blur_downsample>
@@ -47,4 +47,9 @@
 		<blur_passes>2</blur_passes>
 	<blur_radius>53</blur_radius>
 	</Blur>
+<Point_cloud_position>
+		<point_cloud_x>0</point_cloud_x>
+		<point_cloud_y>6</point_cloud_y>
+		<point_cloud_z>1066</point_cloud_z>
+	</Point_cloud_position>
 </group>

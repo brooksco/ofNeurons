@@ -84,8 +84,8 @@ void ofApp::setup(){
     
     // Blob group
     blobGroup.setup("Blob size");
-    blobGroup.add(minBlobSlider.setup("min size", totalArea / 20, 0, totalArea));
-    blobGroup.add(maxBlobSlider.setup("max size", totalArea / 2, 0, totalArea));
+    blobGroup.add(minBlobSlider.setup("min size", totalArea / 20, 0, totalArea / 4));
+    blobGroup.add(maxBlobSlider.setup("max size", totalArea / 4, 0, totalArea / 4));
     
     gui.add(&blobGroup);
     blobGroup.setWidthElements(guiWidth);
@@ -94,7 +94,7 @@ void ofApp::setup(){
     posGroup.setup("Position");
     posGroup.add(xPosSlider.setup("x", 0, -kinect.width / 2, kinect.width / 2));
     posGroup.add(yPosSlider.setup("y", 0, -kinect.height / 2, kinect.height / 2));
-    posGroup.add(zPosSlider.setup("z", 0, -1000, 1000));
+    posGroup.add(zPosSlider.setup("z", 0, -2000, 1000));
     
     gui.add(&posGroup);
     posGroup.setWidthElements(guiWidth);
@@ -106,6 +106,15 @@ void ofApp::setup(){
     
     gui.add(&centerPosGroup);
     centerPosGroup.setWidthElements(guiWidth);
+    
+    // Point cloud position group
+    cloudPosGroup.setup("Point cloud position");
+    cloudPosGroup.add(xCloudPosSlider.setup("point cloud x", 0, -1000, 1000));
+    cloudPosGroup.add(yCloudPosSlider.setup("point cloud y", 0, -1000, 1000));
+    cloudPosGroup.add(zCloudPosSlider.setup("point cloud z", 0, -2000, 2000));
+    
+    gui.add(&cloudPosGroup);
+    cloudPosGroup.setWidthElements(guiWidth);
     
     
 //    // Blur group
@@ -128,7 +137,8 @@ void ofApp::setup(){
     miscGroup.add(easyCamToggle.setup("easyCam", false));
     miscGroup.add(blurToggle.setup("bloom", false));
     miscGroup.add(pointCloudToggle.setup("pointCloud", false));
-    miscGroup.add(meshNumberSlider.setup("number of meshes", 20, 0, 60));
+    // Mesh number
+    miscGroup.add(meshNumberSlider.setup("number of meshes", 10, 0, 100));
     
     bSoundToggle = false;
     
@@ -439,9 +449,14 @@ void ofApp::draw(){
     
     // Draw the model back as a point cloud
     if (pointCloudToggle == true) {
+        ofPushMatrix();
+        
+        // Translate based on sliders
+        ofTranslate(xCloudPosSlider, yCloudPosSlider, zCloudPosSlider);
+        
         modelMesh.draw();
+        ofPopMatrix();
     }
-    
     
     // If we're calibrating, draw the box at the center vector so we can move it easily
     if (calibrateViewToggle == true) {
@@ -460,7 +475,6 @@ void ofApp::draw(){
         blur.end();
         blur.draw();
     }
-    
     
     
     // If we're blurring, do it ALL OVER AGAIN to draw non-blurred stuff
@@ -502,7 +516,13 @@ void ofApp::draw(){
         
         // Draw the model back as a point cloud
         if (pointCloudToggle == true) {
+            ofPushMatrix();
+            
+            // Translate based on sliders
+            ofTranslate(xCloudPosSlider, yCloudPosSlider, zCloudPosSlider);
+            
             modelMesh.draw();
+            ofPopMatrix();
         }
         
         if (easyCamToggle == true) {
@@ -526,6 +546,8 @@ void ofApp::draw(){
         contourFinder.draw(10, (ofGetWindowHeight() - 310), 400, 300);
         
         edgeImage.draw((ofGetWindowWidth() - 410), (ofGetWindowHeight() - 310), 400, 300);
+        
+        ofDrawBitmapString("Number of meshes: " + std::to_string(nMeshes.size()), ((ofGetWindowWidth() / 2) - 60), 20);
     }
     
     // Show the GUI if we want it
