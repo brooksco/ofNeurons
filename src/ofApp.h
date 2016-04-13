@@ -128,6 +128,8 @@ public:
     
     ofxToggle pointCloudToggle;
     
+    ofxToggle onlyDotsToggle;
+    
     // GUI buttons;
     ofxButton blurRefreshButton;
     

@@ -136,6 +136,7 @@ void ofApp::setup(){
     miscGroup.add(easyCamToggle.setup("easyCam", false));
     miscGroup.add(blurToggle.setup("bloom", false));
     miscGroup.add(pointCloudToggle.setup("pointCloud", false));
+    miscGroup.add(onlyDotsToggle.setup("only dots", false));
     // Mesh number
     miscGroup.add(meshNumberSlider.setup("number of meshes", 10, 0, 100));
     
@@ -268,10 +269,10 @@ void ofApp::update() {
                         
                         modelMesh.addVertex(vertex);
                         
-                        //Offset the color here
-                        ofColor col = kinect.getColorAt(x, y);
-                        col = ofColor(col.r, col.g, col.b, 128);
-//                                            ofColor col = ofColor(255, 255, 255); // + offset ;
+                        // Set color
+//                        ofColor col = kinect.getColorAt(x, y);
+//                        col = ofColor(col.r, col.g, col.b, 128);
+                        ofColor col = ofColor(255, 255, 255);
                         
                         modelMesh.addColor( col );
                         
@@ -294,13 +295,18 @@ void ofApp::update() {
                         // Points
                         int type = 3;
                         
-                        if (ofRandom(10) > 7) {
-                            // Lines
-                            type = 1;
+                        if (onlyDotsToggle == false) {
                             
-                        } else if (ofRandom(10) > 8) {
-                            // Filled lines
-                            type = 2;
+                            if (ofRandom(20) > 16) {
+                                // Lines
+                                type = 1;
+                                
+                            }
+                            
+//                            else if (ofRandom(100) > 95) {
+//                                // Filled lines
+//                                type = 2;
+//                            }
                         }
                         
                         // Copy current points to protype
@@ -346,7 +352,6 @@ void ofApp::update() {
                 int newCount = ofRandom(1, 5);
                 
                 for (int j = oldCount; j < (newCount + oldCount); j++) {
-                    
                     
                     int type = 3;
                     
@@ -436,12 +441,14 @@ void ofApp::draw(){
         if (nMeshes[i].type == 1) {
             nMeshes[i].mesh.setMode(OF_PRIMITIVE_LINE_LOOP);
             
-        } else if (nMeshes[i].type == 2) {
-            nMeshes[i].mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
-            
-        } else if (nMeshes[i].type == 3) {
+        } else {
             nMeshes[i].mesh.setMode(OF_PRIMITIVE_POINTS);
         }
+        
+//        else if (nMeshes[i].type == 2) {
+//            nMeshes[i].mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+//            
+//        }
         
         nMeshes[i].mesh.draw();
     }
@@ -503,14 +510,17 @@ void ofApp::draw(){
             if (nMeshes[i].type == 1) {
                 nMeshes[i].mesh.setMode(OF_PRIMITIVE_LINE_LOOP);
                 
-            } else if (nMeshes[i].type == 2) {
-                nMeshes[i].mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
-                
-            } else if (nMeshes[i].type == 3) {
+            } else {
                 nMeshes[i].mesh.setMode(OF_PRIMITIVE_POINTS);
             }
             
+            //        else if (nMeshes[i].type == 2) {
+            //            nMeshes[i].mesh.setMode(OF_PRIMITIVE_TRIANGLE_STRIP);
+            //
+            //        }
+            
             nMeshes[i].mesh.draw();
+
         }
         
         ofEnableBlendMode(OF_BLENDMODE_ALPHA);
