@@ -280,7 +280,7 @@ void nMesh::update() {
             
         }
         
-        if (alphaFactor == 0) {
+        if (alphaFactor <= 0) {
             actionPComplete = true;
         }
         

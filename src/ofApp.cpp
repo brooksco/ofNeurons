@@ -118,8 +118,7 @@ void ofApp::setup(){
     
     
 //    // Blur group
-//    // setup(int width, int height, int radius = 32, float shape = .2, int passes = 1, float downsample = .5);
-//    blurGroup.setup("Blur");
+//    blurGroup.setup("blur");
 //    blurGroup.add(blurRadiusSlider.setup("blur radius", 40, 1, 80));
 //    blurGroup.add(blurShapeSlider.setup("blur shape", .2, .1, 10));
 //    blurGroup.add(blurPassesSlider.setup("blur passes", 1, 1, 10));
@@ -153,7 +152,6 @@ void ofApp::setup(){
     
     
     // Blur setup
-    // setup(int width, int height, int radius = 32, float shape = .2, int passes = 1, float downsample = .5);
 //    blur.setup(ofGetWindowWidth(), ofGetWindowHeight(), blurRadiusSlider, blurShapeSlider, blurPassesSlider, blurDownsampleSlider);
     blur.setup(ofGetWindowWidth(), ofGetWindowHeight(), 50, .2, 1, .1);
     
@@ -292,13 +290,16 @@ void ofApp::update() {
                     // Mmmm maybe there's a better way to clear this, maybe not
                     vecPrototypePoints.clear();
                     
-                    for (int i = 0; i < contourFinder.blobs.size(); i++) {
+                    for (int i = 0; i < contourFinder.nBlobs; i++) {
+                        // Points
                         int type = 3;
                         
-                        if (ofRandom(10) > 6) {
+                        if (ofRandom(10) > 7) {
+                            // Lines
                             type = 1;
                             
-                        } else if (ofRandom(10) > 7) {
+                        } else if (ofRandom(10) > 8) {
+                            // Filled lines
                             type = 2;
                         }
                         
@@ -523,6 +524,13 @@ void ofApp::draw(){
             
             modelMesh.draw();
             ofPopMatrix();
+        }
+        
+        // If we're calibrating, draw the box at the center vector so we can move it easily
+        if (calibrateViewToggle == true) {
+            ofFill();
+            ofSetColor(255, 255, 255, 127);
+            ofDrawBox(cCenter.x - 5, cCenter.y - 5, 0, 10, 10, 10);
         }
         
         if (easyCamToggle == true) {
