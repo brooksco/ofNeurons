@@ -102,7 +102,7 @@ void ofApp::setup(){
     // Center position group
     centerPosGroup.setup("Center position");
     centerPosGroup.add(xCenterPosSlider.setup("center x", kinect.width / 2, 0, kinect.width));
-    centerPosGroup.add(yCenterPosSlider.setup("center y", kinect.height / 2, 0, kinect.height));
+    centerPosGroup.add(yCenterPosSlider.setup("center y", kinect.height / 2, 0, kinect.height * 2));
     
     gui.add(&centerPosGroup);
     centerPosGroup.setWidthElements(guiWidth);
