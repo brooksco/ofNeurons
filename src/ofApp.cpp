@@ -138,7 +138,7 @@ void ofApp::setup(){
     miscGroup.add(pointCloudToggle.setup("pointCloud", false));
     miscGroup.add(onlyDotsToggle.setup("only dots", false));
     // Mesh number
-    miscGroup.add(meshNumberSlider.setup("number of meshes", 10, 0, 100));
+    miscGroup.add(meshNumberSlider.setup("number of meshes", 10, 0, 200));
     
     bSoundToggle = false;
     
